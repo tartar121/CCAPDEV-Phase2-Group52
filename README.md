@@ -8,5 +8,7 @@ Task is to **create the front-end portion** of selected web application.
 This table details the group members:
 | Team Member|
 | :--- |
-| **Ram Miguel C. Liwanag** |
-| **Tara Ysabel P. Uy** |
+| **Dale Vernard Balila** |
+| **Ram Miguel Liwanag** |
+| **John Albert Teoxon** |
+| **Tara Ysabel Uy** |
