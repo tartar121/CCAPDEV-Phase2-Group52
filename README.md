@@ -1,5 +1,5 @@
 # CCAPDEV-Phase1-Group52
-Task is to **create the front-end portion** of selected web application.
+Task is to **develop the front-end portion** of selected web application.
 
 ### Deliverables
 **zip file** containing **all files** for the machine project
@@ -14,8 +14,8 @@ This table details the group members:
 | **Tara Ysabel Uy** | Account Management, Reservation Priority & Optimization |
 
 ## 🚀 Key Features (Phase 1)
-- All views are visible and navigable from the index webpage.
-- Reservation Priority Displacement: Faculty members can displace student reservations; students are notified via a persistent dashboard alert upon login.
+- All system views are visible and navigable from the main index webpage.
+- Reservation Priority Displacement: Faculty members are able to override conflicting student reservations. Displaced students receive a persistent dashboard notification upon their next login.
 - Technician Administrative Tools: Admin accounts can manage real-time lab status, including recording walk-ins, validating check-ins, and handling no-shows.
 - Privacy & Anonymity: Students can choose to reserve slots anonymously to hide their identity from peers.
 - Life-like Sample Data: The system initializes with at least 5 sample users and 5 sample reservations formatted in 1-hour blocks.
@@ -37,3 +37,12 @@ The following accounts are hardcoded to demonstrate different role-based feature
 ## 📁 Submission Guidelines
 - File Format: CCAPDEV-Phase1-Group52.zip
 - Collaboration: Students collaborated through the group's GitHub repository.
+
+## 🛠️ Phase 0 to Phase 1: Evolution of Lab O' Mine
+| Feature	| Phase 0 Proposal (The Plan)	| Phase 1 Implementation (The Reality) |
+| :--- | :--- | :--- |
+| Reservation Priority | Teacher has priority over student schedules	| Added a real-time notification system that alerts students on their dashboard if displaced by faculty |
+| Technician Tools | Manual reserve, edit, and cancel no-shows | Added a "Checked-in" state (Green) to visually validate attendance, fulfilling the CRUD "Update" requirement |
+| User Anonymity | An "option" to book anonymously | Integrated a custom Bootstrap Modal that requires a clear "Yes/No" privacy choice, improving UX and Visual Design |
+| Search & Filter | Graphical interface to find free slots | Search parameters from reserve.html now dynamically filter the room grid to a specific date, preventing data overload |
+| Client-Side Session Management | Login/Sign-up logic | Implemented sessionStorage to temporarily store user session data and maintain state consistency during active browser sessions |
