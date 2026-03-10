@@ -1,0 +1,22 @@
+<div class="container mt-5" style="max-width: 500px;">
+    <div class="card p-4 shadow-sm">
+        <h3>Search Lab Availability</h3>
+        <form action="/rooms" method="GET">
+            <div class="mb-3">
+                <label>Select Lab</label>
+                <select name="lab" class="form-select">
+                    <option>Gokongwei 302</option>
+                    <option>Gokongwei 306</option>
+                    <option>Velasco 211</option>
+                    <option>Henry Sy 4th Floor</option>
+                    <option>Andrew 1401</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label>Date</label>
+                <input type="date" name="date" class="form-control" required min="{{today}}">
+            </div>
+            <button type="submit" class="btn btn-success w-100">Search Availability</button>
+        </form>
+    </div>
+</div>
