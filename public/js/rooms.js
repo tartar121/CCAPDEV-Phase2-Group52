@@ -2,11 +2,14 @@
 // Lab O' Mine reservation UI
 
 // Page State
-// Initialize activeDate from the date passed in the URL (BASE_ISO),
-// falling back to today — fixes seat grid showing wrong date on direct URL access
-const _initDate = window.BASE_ISO
-  ? new Date(window.BASE_ISO + 'T00:00:00')
-  : new Date()
+// Initialize activeDate from BASE_ISO (YYYY-MM-DD from server).
+// Falls back to today if missing or invalid.
+function parseInitDate (iso) {
+  if (!iso || iso === 'undefined' || iso === '') return new Date()
+  const d = new Date(iso + 'T00:00:00')
+  return isNaN(d.getTime()) ? new Date() : d
+}
+const _initDate = parseInitDate(window.BASE_ISO)
 
 const pageState = {
   labId:          window.LAB_ID   || '',
@@ -88,7 +91,7 @@ function buildSeatGrid () {
   loadTakenSeats()
 }
 
-// 
+// Handles clicking a seat tile — toggles selection if free, ignores if reserved/faculty
 function onSeatTileClick (tile, num) {
   if (tile.classList.contains('reserved') || tile.classList.contains('faculty')) return
 
@@ -488,12 +491,22 @@ async function saveReservation () {
     })
 
     if (response.ok) {
+      const body = await response.json()
       bootstrap.Modal.getOrCreateInstance(document.getElementById('summaryModal')).hide()
 
       // Reset state
       pageState.pickedSeats  = []
       pageState.chosenSlots  = []
       pageState.editTargetId = null
+
+      // If faculty bumped students, update success message
+      if (body.bumpedCount > 0) {
+        document.querySelector('#successModal p').textContent =
+          `Your seat has been reserved. ${body.bumpedCount} conflicting student reservation(s) were cancelled due to faculty priority.`
+      } else {
+        document.querySelector('#successModal p').textContent =
+          'Your seat has been successfully reserved.'
+      }
 
       setTimeout(() => {
         bootstrap.Modal.getOrCreateInstance(document.getElementById('successModal')).show()
@@ -634,11 +647,36 @@ async function refreshScheduleTable () {
   }
 }
 
-// Technician: cancel a reservation (no-show or override)
-// Called directly from onclick in rooms.hbs since forms can't do DELETE
+// Technician: cancel a no-show reservation
+// Per proposal: only valid within the first 10 minutes of the reservation start time
 async function techCancel (resId, btn) {
   if (!resId || resId === 'undefined') return
-  if (!confirm('Cancel this reservation?')) return
+
+  // Find the start time from the cell's row — check we're within 10 minutes of start
+  const row       = btn.closest('tr')
+  const timeCell  = row ? row.querySelector('td:first-child') : null
+  if (timeCell) {
+    const startLabel = timeCell.textContent.trim().split(' - ')[0]  // e.g. "09:00 AM"
+    const [tp, mer]  = startLabel.split(' ')
+    let [h, m]       = tp.split(':').map(Number)
+    if (mer === 'PM' && h !== 12) h += 12
+    if (mer === 'AM' && h === 12) h  = 0
+    const slotStartMins = h * 60 + m
+    const now           = new Date()
+    const nowMins       = now.getHours() * 60 + now.getMinutes()
+    const diff          = nowMins - slotStartMins
+
+    if (diff < 0) {
+      alert('Cannot cancel yet — reservation has not started.')
+      return
+    }
+    if (diff > 10) {
+      alert('10-minute no-show window has passed. Cannot cancel this reservation.')
+      return
+    }
+  }
+
+  if (!confirm('Cancel this reservation as no-show?')) return
 
   try {
     const response = await fetch(`/api/reservations/${resId}`, { method: 'DELETE' })
