@@ -1,12 +1,13 @@
 // public/js/rooms.js
-// I merged some of the guardrails within my branch into this that weren't on the final version of phase 1
 
 let reservationStart = null;
 let reservationRange = [];
 
+// Reserve slot
 function reserveSlot(btn, date, slotIndex, room){
-
-    if (btn.classList.contains('btn-reserved') || btn.classList.contains('btn-faculty') || btn.classList.contains('btn-checkedin')){
+    if (btn.classList.contains('btn-reserved') || 
+        btn.classList.contains('btn-faculty')  || 
+        btn.classList.contains('btn-checkedin')) {
         alert("This slot is already reserved.");
         return;
     }
@@ -44,13 +45,13 @@ function reserveSlot(btn, date, slotIndex, room){
     }
 
     const allButtons = document.querySelectorAll(`button[data-day="${dayIndex}"]`);
-
     let conflict = false;
-
     allButtons.forEach(b => {
         const bIndex = parseInt(b.dataset.slot);
         if (bIndex >= startIndex && bIndex <= endIndex){
-            if (b.classList.contains('btn-reserved') || b.classList.contains('btn-faculty')  || b.classList.contains('btn-checkedin')){
+            if (b.classList.contains('btn-reserved') || 
+                b.classList.contains('btn-faculty')  || 
+                b.classList.contains('btn-checkedin')){
                 conflict = true;
             }
         }
@@ -63,7 +64,6 @@ function reserveSlot(btn, date, slotIndex, room){
     }
 
     reservationRange = [];
-
     allButtons.forEach(b => {
         const bIndex = parseInt(b.dataset.slot);
         if (bIndex >= startIndex && bIndex <= endIndex){
@@ -73,7 +73,7 @@ function reserveSlot(btn, date, slotIndex, room){
             reservationRange.push({
                 dayIndex,
                 slotIndex: bIndex,
-                date: b.dataset.date,
+                date: b.dataset.date, // ISO string (YYYY-MM-DD) from data-date
                 slotTime: b.dataset.time,
                 room
             });
@@ -84,23 +84,23 @@ function reserveSlot(btn, date, slotIndex, room){
     reservationStart = null;
 }
 
+// Show privacy/anonymous booking modal
 function showPrivacyModal(){
     if (reservationRange.length < 2){
         alert("Please select at least 2 consecutive slots (1 hour minimum).");
         return;
     }
-    const myModal = new bootstrap.Modal(document.getElementById('anonModal'));
-    myModal.show();
+    new bootstrap.Modal(document.getElementById('anonModal')).show();
 }
 
+// Send selected reservation slots to the server
 function processBooking(isAnon){
+    bootstrap.Modal.getInstance(document.getElementById('anonModal')).hide();
 
-    const modalEl = document.getElementById('anonModal');
-    bootstrap.Modal.getInstance(modalEl).hide();
-
+    // Build selections — field names match reservationCon.js
     const selections = reservationRange.map(s => ({
         room:      s.room,
-        date:      s.date,
+        date:      s.date,  // YYYY-MM-DD
         slotTime:  s.slotTime,
         slotIndex: s.slotIndex
     }));
@@ -119,36 +119,32 @@ function processBooking(isAnon){
     })
     .catch(err => {
         console.error("Reservation error:", err);
-        alert("Reservation failed. Please try again.");
+        alert("Reservation failed. Please try again." + err.message);
         resetSelection();
     });
 }
 
+// Reset all selected slots and restore buttons to original state
 function resetSelection(){
-
-    reservationStart = null;
+    if (reservationStart?.btn) {
+        reservationStart.btn.classList.remove('btn-selected');
+        reservationStart.btn.classList.add('btn-available');
+        reservationStart.btn.textContent = "Reserve";
+    }
 
     reservationRange.forEach(s => {
-        const btns = document.querySelectorAll(
+        document.querySelectorAll(
             `button[data-day="${s.dayIndex}"][data-slot="${s.slotIndex}"]`
-        );
-        btns.forEach(b => {
+        ).forEach(b => {
             b.classList.remove('btn-selected');
             b.classList.add('btn-available');
             b.textContent = "Reserve";
         });
     });
 
-    if (reservationStart && reservationStart.btn){
-        reservationStart.btn.classList.remove('btn-selected');
-        reservationStart.btn.classList.add('btn-available');
-        reservationStart.btn.textContent = "Reserve";
-    }
-
+    reservationStart = null;
     reservationRange = [];
+    
     const confirmBtn = document.getElementById('confirmBtn');
-
-    if (confirmBtn){
-        confirmBtn.style.display = 'none';
-    }
+    if (btn) btn.style.display = 'none';
 }
