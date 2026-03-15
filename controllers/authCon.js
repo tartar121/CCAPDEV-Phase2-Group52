@@ -10,13 +10,15 @@ exports.login = async (req, res) => {
                 _id: user._id,
                 name: user.name,
                 email: user.email,
-                role: user.email.includes('.') && !user.email.includes('_') ? 'FACULTY' : 'STUDENT'
+                // role: user.email.includes('.') && !user.email.includes('_') ? 'FACULTY' : 'STUDENT'
+                role:  user.role   // pulled directly from DB
             };
             res.redirect('/');
         } else {
             res.render('login', { title: "Login", error: "Invalid email or password" });
         }
     } catch (err) {
+        console.error(err);
         res.status(500).send("Server error");
     }
 };
@@ -24,9 +26,11 @@ exports.login = async (req, res) => {
 exports.register = async (req, res) => {
     try {
         const { name, email, password } = req.body;
-        await User.create({ name, email, password });
+        // All self-registered users are students by default (for now)
+        await User.create({ name, email, password, role: 'student'  });
         res.render('login', { title: "Login", error: "Registration successful!" });
     } catch (err) {
+        const msg = err.code === 11000 ? "An account with that email already exists." : "Registration failed. Please try again.";
         res.render('login', { title: "Login", error: "Registration failed." });
     }
 };
