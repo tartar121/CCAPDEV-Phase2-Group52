@@ -46,34 +46,43 @@
                         <th>Room</th>
                         <th>Time Slot</th>
                         <th>Date</th>
-                        {{#if isSelf}}<th>Action</th>{{/if}}
+                        {{#if isSelf}}<th>Action</th>{{else if isTech}}<th>Action</th>{{/if}}
                     </tr>
                 </thead>
                 <tbody>
                     {{#each reservations}}
                     <tr>
                         <td>{{this.labCode}}</td>
-                        <td>{{this.timeRange}}</td>
+                        <td>
+                            {{this.timeRange}}
+                            {{#if this.isAnonymous}}<span class="badge bg-secondary ms-1" style="font-size:9px;">Anon</span>{{/if}}
+                        </td>
                         <td>{{formatDate this.date}}</td>
                         {{#if ../isSelf}}
                         <td>
                             <div class="d-flex gap-1">
-                                <a href="/rooms?lab={{this.labCode}}&date={{this.date}}&edit={{this._id}}"
+                                <a href="/rooms?lab={{this.lab.name}}&date={{this.isoDate}}&edit={{this._id}}"
                                    class="btn btn-sm btn-outline-primary">Edit</a>
                                 <form action="/cancel-reservation" method="POST" class="m-0">
                                     <input type="hidden" name="resId" value="{{this._id}}">
                                     <button type="submit" class="btn btn-sm btn-outline-danger"
-                                        onclick="return confirm('Cancel this reservation?')">
-                                        Cancel
-                                    </button>
+                                        onclick="return confirm('Cancel this reservation?')">Cancel</button>
                                 </form>
                             </div>
+                        </td>
+                        {{else if ../isTech}}
+                        <td>
+                            <form action="/cancel-reservation" method="POST" class="m-0">
+                                <input type="hidden" name="resId" value="{{this._id}}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('Cancel as technician?')">Cancel</button>
+                            </form>
                         </td>
                         {{/if}}
                     </tr>
                     {{else}}
                     <tr>
-                        <td colspan="{{#if isSelf}}4{{else}}3{{/if}}" class="text-center text-muted">
+                        <td colspan="{{#if isSelf}}4{{else if isTech}}4{{else}}3{{/if}}" class="text-center text-muted">
                             No reservations found.
                         </td>
                     </tr>
