@@ -2,12 +2,15 @@
 <style>
     .lab-card { transition: transform 0.2s; height: 100%; }
     .lab-card:hover { transform: translateY(-5px); }
+    .role-faculty    { background-color: #0d6efd; color: white; }
+    .role-student    { background-color: #6c757d; color: white; }
+    .role-technician { background-color: #ffc107; color: #000; }
 </style>
 {{/section}}
 
-<div class="alert alert-success shadow-sm d-flex justify-content-between">
+<div class="alert alert-success shadow-sm d-flex justify-content-between align-items-center">
     <span>Logged in as: <strong>{{currentUser.name}}</strong></span>
-    <span class="badge bg-dark">Role: {{currentUser.role}}</span>
+    <span class="badge bg-dark text-uppercase">{{currentUser.role}}</span>
 </div>
 
 <h3 class="mb-3">Select a Laboratory</h3>
@@ -16,7 +19,8 @@
     <div class="col-md-4">
         <div class="card lab-card shadow-sm border-success text-center p-3">
             <h5>{{this.name}}</h5>
-            <p class="text-muted small">Computer Laboratory</p>
+            <p class="text-muted small mb-1">{{this.building}} — {{this.floor}}</p>
+            <p class="text-muted small">Capacity: {{this.capacity}} seats</p>
             <a href="/rooms?lab={{this.name}}" class="btn btn-outline-success">View Seats</a>
         </div>
     </div>
@@ -30,10 +34,10 @@
     {{#each users}}
     <div class="col">
         <div class="card lab-card p-2 text-center shadow-sm border-success">
-            <a href="/profile/{{this.email}}" class="text-decoration-none fw-bold text-dark">
+            <a href="/profile/{{this.email}}" class="text-decoration-none fw-bold text-dark small">
                 {{capital this.name}}
             </a>
-            <small class="text-muted">{{capital this.role}}</small>
+            <span class="badge mt-1 role-{{this.role}}">{{capital this.role}}</span>
         </div>
     </div>
     {{/each}}
